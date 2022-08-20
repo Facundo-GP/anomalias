@@ -35,11 +35,13 @@ class DataFrame(Thread):
                 logger.debug('Anomalies:')
                 logger.debug('\n %s', anomalies)
 
-                self.__api.write(dataFrame, anomalies)
+                self.__api.write(dataFrame, anomalies, self.__obs_name)
 
 
-    def append(self, obs):
+    def append(self, obs, obs_name):
         self.__observations.put(obs)
+        self.__obs_name = obs_name
+        self.run()
 
     def exit(self, bol=False):
         self.__exit = bol

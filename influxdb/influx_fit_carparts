@@ -1,0 +1,40 @@
+import "json"
+import "http"
+import "date"
+
+option task = {name: "fit carparts", every: 100h, offset: 100h}
+
+serie = "serie0"
+id = "1"
+
+data =
+    from(bucket: "carparts")
+        |> range(start: 0, stop: now())
+        |> filter(fn: (r) => r["_measurement"] == "ventas_mensuales")
+        |> filter(fn: (r) => r["value"] == "${serie}")
+
+values =
+    data
+        |> findColumn(fn: (key) => true, column: "_value")
+
+index =
+    data
+        |> findColumn(fn: (key) => true, column: "_time")
+
+metrics =
+    data
+        |> findColumn(fn: (key) => true, column: "_measurement")
+
+jsonData = {index: index, values: values, metrics: metrics}
+
+
+http.post(
+    url: "http://api:8000/detect/${id}",
+    headers: {
+        Authorization: "API kw9xrtqg56z1htwVJUJxgGoozZykmVMP3ScKcK3s0MQGYUfNClQtXwe6HL7pWX_T5N0Q0EUVo51wVl00B4Cdjw==",
+        "Content-type": "application/json",
+    },
+    data: json.encode(v: jsonData),
+)
+
+data

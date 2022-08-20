@@ -22,6 +22,7 @@ class Adtk_AD:
         logger.info('Fitting model.')
         self.__train_serie = train_data
         self.__model.fit(train_data)
+        logger.info('Model fitted.')
 
     def detect(self, observations):
         idx_anom = self.__model.detect(observations)
