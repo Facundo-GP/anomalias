@@ -5,7 +5,8 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import make_pipeline
 
-from anomalias import log
+import log
+# TODO install package
 from polylearn import FactorizationMachineRegressor
 
 logger = log.logger('FMmodel')
@@ -27,9 +28,9 @@ class FactorizationMachineAnomalyDetector:
         self.__pipe.fit(X, y)
         logger.info(f'Model fitted.\n')
 
-    def detect(self, observations):
+    def detect(self, observations: pd.DataFrame) -> pd.Series:
         logger.info('Detecting anomalies...')
-        # TODO
+        # TODO decide logic for classification of anomalies
         return self.__pipe.predict(observations)
 
 
@@ -74,3 +75,12 @@ def split_datetime(dt_series: pd.Series) -> pd.DataFrame:
     out_df['hour'] = dt_series.dt.hour
 
     return out_df
+
+
+if __name__ == '__main__':
+    test_data = pd.DataFrame({'serie': np.random.randn(100)},
+                             index=pd.date_range('1/1/2000', periods=100, freq='5min'))
+
+    fm_model = FactorizationMachineAnomalyDetector(window_size=5, fm_params={'n_iter': 10})
+
+    fm_model.train(test_data, test_data['serie'])
