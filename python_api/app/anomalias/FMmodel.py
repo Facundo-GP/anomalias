@@ -6,8 +6,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import make_pipeline
 
 import log
-# TODO install package
-from polylearn import FactorizationMachineRegressor
+from fastFM.als import FMRegression
 
 logger = log.logger('FMmodel')
 
@@ -20,7 +19,7 @@ class FactorizationMachineAnomalyDetector:
         logger.info('Creating FM model.')
         self.__pipe = make_pipeline([
             PreprocessingFMTransformer(window_size),
-            FactorizationMachineRegressor(**fm_params)
+            FMRegression(**fm_params)
         ])
 
     def train(self, X: pd.DataFrame, y: pd.Series):
