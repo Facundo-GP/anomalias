@@ -3,6 +3,7 @@ import anomalias.log as log
 from threading import Condition
 from anomalias.tsmodels import SSM_AD
 from anomalias.adtk import Adtk_AD
+from FMmodel import FactorizationMachineAnomalyDetector
 
 logger = log.logger('Detector')
 
@@ -17,6 +18,11 @@ class Detector:
 
         self.__training = False
         self.__paused = False
+
+    def fm_ad(self, window_size, **kwargs):
+        with self.__available:
+            self.__model.FactorizationMachineAnomalyDetector(window_size, **kwargs)
+            self.__available.notify()
 
     def ssm_ad(self, th, endog, model_type, **kwargs):
         with self.__available:

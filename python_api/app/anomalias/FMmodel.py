@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import numpy as np
@@ -10,7 +11,6 @@ import log
 from fastFM.als import FMRegression
 
 logger = log.logger('FMmodel')
-
 
 class FactorizationMachineAnomalyDetector:
     """
@@ -39,12 +39,11 @@ class FactorizationMachineAnomalyDetector:
     def detect(self, observations: pd.DataFrame) -> pd.Series:
         assert self.target in observations.columns, f'{self.target} not in observations columns.'
         logger.info('Detecting anomalies...')
-        y_true = observations[self.target].iloc[self.__pipe['preprocessingfmtransformer'].window_size:]
-        y_pred = self.__pipe.predict(observations)
-        out_series = y_true.sub(y_pred)\
-            .abs()\
-            .gt(self.threshold)
-        return out_series
+        out_vals = np.zeros(len(observations))
+        y_true = observations[self.target].values[self.__pipe['preprocessingfmtransformer'].window_size:]
+        y_pred = self.__pipe.predict(observations).values
+        out_vals[self.__pipe['preprocessingfmtransformer'].window_size:] = np.abs(y_true-y_pred) < self.threshold
+        return pd.Series(out_vals, index=observations.index, name='anomalias', dtype=bool)
 
 
 class PreprocessingFMTransformer(BaseEstimator, TransformerMixin):
@@ -115,3 +114,5 @@ if __name__ == '__main__':
                                                    target='serie')
 
     fm_model.train(test_data, test_data['serie'])
+
+    print(fm_model.detect(test_data))

@@ -33,6 +33,14 @@ class Detectors():
             logger.error('%s', e)
             return None
 
+    def fm_ad(self, id, window_size, **kwargs):
+        try:
+            if self.__exist_id(id):
+                (self.__dataframes[self.df_id.index(id)]).ad.fm_ad(window_size, **kwargs)
+        except Exception as e:
+            logger.error('%s', e)
+            return None
+
     def remove(self, id):
         try:
             if self.__exist_id(id):

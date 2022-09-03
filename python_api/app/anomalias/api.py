@@ -28,8 +28,7 @@ class CsvData(BaseModel):
     bucket:  str
     org: str
     measurement_name: str
-
-token = "kw9xrtqg56z1htwVJUJxgGoozZykmVMP3ScKcK3s0MQGYUfNClQtXwe6HL7pWX_T5N0Q0EUVo51wVl00B4Cdjw=="
+token = "eapXkDTtw2dCnnXA--ClfV8hUlcFGh3VhMkTs_wwg9TT_nnzAvFqo6ZrVHhRub3_4oOPhfHuElrJtKKPreVx0w=="
 org = "fing"
 bucket = "carparts"
 influx_url = "http://influxdb:8086"
@@ -73,9 +72,7 @@ def start(detectors):
                 detectors.adtk_ad(id=id, model_type='MinClusterAD', n_clusters=2)
             
             elif name == "fm":
-                #Agregar factorization machine a detectors
-                pass
-
+                detectors.fm_ad(id=id, window_size=5)
 
 
         @api.post("/start/{id}")
