@@ -7,10 +7,10 @@ from scipy.sparse import csc_matrix
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import make_pipeline
 
-import log
+# from anomalias import log
 from fastFM.als import FMRegression
 
-logger = log.logger('FMmodel')
+logger = logging.getLogger('FMmodel')
 
 class FactorizationMachineAnomalyDetector:
     """
@@ -30,10 +30,12 @@ class FactorizationMachineAnomalyDetector:
             FMRegression(**fm_params)
         )
 
-    def train(self, X: pd.DataFrame, y: pd.Series):
+    def fit(self, X: pd.DataFrame):
+        assert self.target in X.columns, 'Target series must be a column of the input data frame'
         logger.info('Fitting model...')
+        y = X[self.target].iloc[self.__pipe['preprocessingfmtransformer'].window_size:]
         # First {window_size} targets are not used for training (sklearn pipelines won't change target data)
-        self.__pipe.fit(X, y.iloc[self.__pipe['preprocessingfmtransformer'].window_size:])
+        self.__pipe.fit(X, y)
         logger.info(f'Model fitted.\n')
 
     def detect(self, observations: pd.DataFrame) -> pd.Series:
@@ -41,9 +43,9 @@ class FactorizationMachineAnomalyDetector:
         logger.info('Detecting anomalies...')
         out_vals = np.zeros(len(observations))
         y_true = observations[self.target].values[self.__pipe['preprocessingfmtransformer'].window_size:]
-        y_pred = self.__pipe.predict(observations).values
-        out_vals[self.__pipe['preprocessingfmtransformer'].window_size:] = np.abs(y_true-y_pred) < self.threshold
-        return pd.Series(out_vals, index=observations.index, name='anomalias', dtype=bool)
+        y_pred = self.__pipe.predict(observations)
+        out_vals[self.__pipe['preprocessingfmtransformer'].window_size:] = np.abs(y_true-y_pred) > self.threshold
+        return pd.Series(out_vals, index=observations.index, dtype=bool)
 
 
 class PreprocessingFMTransformer(BaseEstimator, TransformerMixin):
@@ -64,12 +66,9 @@ class PreprocessingFMTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X: pd.DataFrame, y: pd.Series = None):
-        # out_values = np.empty(((len(X) - self.window_size),
-        #                        X.shape[1]*self.window_size + 4))  # +4 is for date-time data
 
         # Process date-time data
         out_values = split_datetime(X.index).values[self.window_size:, :]
-        # out_values = np.hstack((out_values, dt_values[self.window_size:, :]))
 
         logger.debug(f'Transformed date values:\n'
                      f'{out_values}\n'
@@ -108,11 +107,11 @@ if __name__ == '__main__':
     logger.debug(f'{test_data}')
 
     fm_model = FactorizationMachineAnomalyDetector(anomaly_type='point',
-                                                   threshold=0.01,
+                                                   threshold=0.1,
                                                    window_size=5,
                                                    fm_params={'n_iter': 10, 'rank': 2},
                                                    target='serie')
 
-    fm_model.train(test_data, test_data['serie'])
+    fm_model.fit(test_data)
 
     print(fm_model.detect(test_data))
