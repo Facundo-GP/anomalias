@@ -1,5 +1,5 @@
-from anomalias.detectors import Detectors
-import anomalias.api as api
+from .detectors import Detectors
+from . import api
 
 
 def main():

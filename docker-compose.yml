@@ -15,7 +15,7 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=series
 
   api:
-    image: service-api:latest
+    image: adetect-app:dev
     ports:
       - '8000:8000'
 

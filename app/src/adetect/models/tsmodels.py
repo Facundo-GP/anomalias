@@ -2,8 +2,9 @@
 Time Series Models
 """
 import statsmodels.tsa.statespace.api as ss
-from anomalias import log
 import numpy as np
+
+from .. import log
 
 logger = log.logger( 'tsmodels' )
 

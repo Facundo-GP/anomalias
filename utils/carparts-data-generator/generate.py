@@ -96,7 +96,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    dataset_path = "./carparts.csv"
+    dataset_path = "../../data/carparts.csv"
     generator = carpartsDataGenerator(dataset_path)
     generator.generateDataset(args.n_series,args.lenght,args.noise_factor)
     if args.write_influx:

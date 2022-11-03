@@ -1,7 +1,7 @@
-from adtk.detector import SeasonalAD
-from adtk.detector import MinClusterDetector
+from adtk.detector import SeasonalAD, MinClusterDetector
 from sklearn.cluster import KMeans
-from anomalias import log
+
+from .. import log
 
 logger = log.logger('adtk')
 
